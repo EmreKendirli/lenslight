@@ -1,20 +1,30 @@
-const getIndexPage=(req,res)=>{
-    res.render("index",{
-        link:"index"
+const getIndexPage = (req, res) => {
+    res.render("index", {
+        link: "index"
     });
 };
 
-const getAboutPage=(req,res)=>{
-    res.render("about",{
-        link:"about"
+const getAboutPage = (req, res) => {
+    res.render("about", {
+        link: "about"
     });
 };
 
-const getRegisterPage=(req,res)=>{
-    res.render("register",{
-        link:"register"
+const getRegisterPage = (req, res) => {
+    res.render("register", {
+        link: "register"
+    });
+};
+const getLoginPage = (req, res) => {
+    res.render("login", {
+        link: "login"
     });
 };
 
 
-export {getAboutPage,getIndexPage,getRegisterPage};
+export {
+    getAboutPage,
+    getIndexPage,
+    getRegisterPage,
+    getLoginPage
+};
