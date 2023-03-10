@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from "bcrypt";
-
+import validator from 'validator';
 const {
   Schema
 } = mongoose;
@@ -8,17 +8,20 @@ const {
 const userSchema = new Schema({
   username: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true,"UserName area is required"],
+    lowercase:true,//büyük harf ile yazarsak küçük harfe çevirir
+    validate:[validator.isAlphanumeric,"Only Alphanumeric characters"],//sadece harf ve rakamlardan oluşsun
   },
   email: {
     type: String,
-    required: true,
+    required: [true,"Email area is required"],
     unique: true,
+    validate:[validator.isEmail,"Valid email is required"]
   },
   password: {
     type: String,
-    required: true,
+    required: [true,"Password area is required"],
+    minlenght:[4,"At least 4 characters"]
   },
 }, {
   timestamps: true,
@@ -26,10 +29,8 @@ const userSchema = new Schema({
 
 userSchema.pre("save", function (next) {
   const user = this
-  console.log("User pass 1", user.password)
   bcrypt.hash(user.password, 10, (err, hash) => {
     user.password = hash;
-    console.log("User pass 1", user.password)
 
     next();
   })
