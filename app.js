@@ -12,6 +12,7 @@ import {
     v2 as cloudinary
 } from "cloudinary"
 import fileUpload from "express-fileupload";
+import MethodOverride from "method-override";
 
 
 
@@ -40,6 +41,9 @@ app.use(express.urlencoded({
 }))
 app.use(cookieParser());
 app.use(fileUpload({useTempFiles:true}))
+app.use(MethodOverride("_method",{
+    methods:["POST","GET"]
+}))
 
 //routers
 app.use("*", checkUser);

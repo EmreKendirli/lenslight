@@ -66,10 +66,7 @@ const loginUser = async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).json({
-            succeded: false,
-            error
-        })
+        catchFor(error)
     }
 
 };
@@ -78,8 +75,12 @@ const getDashboardPage = async (req, res) => {
     const photos = await Photo.find({
         user: res.locals.user._id
     })
+    const user = await User.findById({
+        _id: res.locals.user._id
+    }).populate(["followings", "followers"])
     res.render("dashboard", {
         link: "dashboard",
+        user,
         photos
     });
 };
@@ -94,38 +95,106 @@ const createToken = (userId) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({_id:{$ne :res.locals.user._id}}) //hepsini getir
+        const users = await User.find({
+            _id: {
+                $ne: res.locals.user._id
+            }
+        }) //hepsini getir
         res.status(200).render("users", {
             users,
             link: "users"
         })
 
     } catch (error) {
-        res.status(500).json({
-            succeded: false,
-            error
-        })
+        catchFor(error)
     }
 };
 
 const getAUser = async (req, res) => {
     try {
-        const user = await User.findById({_id: req.params.id });
-        const photos =  await Photo.find({user: res.locals.user._id })
-        res.status(200).render("user", { 
+        const user = await User.findById({
+            _id: req.params.id
+        });
+        const inFollowers = user.followers.some((follower) => {
+            return follower.equals(res.locals.user._id)
+        });
+        const photos = await Photo.find({
+            user: user._id
+        });
+        res.status(200).render("user", {
             user,
+            inFollowers,
             photos,
             link: "users"
-        })
+        });
 
     } catch (error) {
-        res.status(500).json({
-            succeded: false,
-            error
-        })
+        catchFor(error)
     }
 };
 
+const follow = async (req, res) => {
+    try {
+        let user = await User.findByIdAndUpdate({
+            _id: req.params.id
+        }, {
+            $push: {
+                followers: res.locals.user._id
+            }
+        }, {
+            new: true
+        })
+        user = await User.findByIdAndUpdate({
+            _id: res.locals.user._id
+        }, {
+            $push: {
+                followings: req.params.id
+            }
+        }, {
+            new: true
+        })
+        res.status(200).redirect(`/users/${req.params.id}`)
+    } catch (error) {
+        catchFor(error)
+    }
+};
+
+const unFollow = async (req, res) => {
+    try {
+        let user = await User.findByIdAndUpdate({
+            _id: req.params.id
+        }, {
+            $pull: {
+                followers: res.locals.user._id
+            }
+        }, {
+            new: true
+        })
+        user = await User.findByIdAndUpdate({
+            _id: res.locals.user._id
+        }, {
+            $pull: {
+                followings: req.params.id
+            }
+        }, {
+            new: true
+        })
+        res.status(200).redirect(`/users/${req.params.id}`)
+
+    } catch (error) {
+        catchFor(error)
+    }
+};
+
+
+function catchFor(error) {
+
+    res.status(500).json({
+        succeded: false,
+        error
+    })
+
+}
 
 
 export {
@@ -133,5 +202,7 @@ export {
     loginUser,
     getDashboardPage,
     getAllUsers,
-    getAUser
+    getAUser,
+    follow,
+    unFollow
 };
