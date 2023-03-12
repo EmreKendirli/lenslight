@@ -8,7 +8,9 @@ import Photo from "../models/photoModel.js";
 const createUser = async (req, res) => {
     try {
         const user = await User.create(req.body);
-        res.status(201).json({user : user._id})
+        res.status(201).json({
+            user: user._id
+        })
     } catch (error) {
 
         let error2 = {};
@@ -25,6 +27,7 @@ const createUser = async (req, res) => {
     }
 
 };
+
 const loginUser = async (req, res) => {
     try {
         const {
@@ -71,15 +74,15 @@ const loginUser = async (req, res) => {
 
 };
 
-
 const getDashboardPage = async (req, res) => {
-    const photos =await Photo.find({user:res.locals.user._id})
+    const photos = await Photo.find({
+        user: res.locals.user._id
+    })
     res.render("dashboard", {
         link: "dashboard",
         photos
     });
 };
-
 
 const createToken = (userId) => {
     return jwt.sign({
@@ -87,11 +90,48 @@ const createToken = (userId) => {
     }, process.env.JWT_SECRET, {
         expiresIn: "1d",
     })
-}
+};
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({_id:{$ne :res.locals.user._id}}) //hepsini getir
+        res.status(200).render("users", {
+            users,
+            link: "users"
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            succeded: false,
+            error
+        })
+    }
+};
+
+const getAUser = async (req, res) => {
+    try {
+        const user = await User.findById({_id: req.params.id });
+        const photos =  await Photo.find({user: res.locals.user._id })
+        res.status(200).render("user", { 
+            user,
+            photos,
+            link: "users"
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            succeded: false,
+            error
+        })
+    }
+};
+
 
 
 export {
     createUser,
     loginUser,
-    getDashboardPage
+    getDashboardPage,
+    getAllUsers,
+    getAUser
 };
