@@ -59,9 +59,16 @@ const getAPhoto = async (req, res) => {
         const photo = await Photo.findById({
             _id: req.params.id
         }).populate("user") //hepsini getir
+
+        let isOwner = false;
+        if(res.locals.user){
+            isOwner=photo.user.equals(res.locals._id)
+        }
+
         res.status(200).render("photo", {
             photo,
-            link: "photos"
+            link: "photos",
+            isOwner
         })
 
     } catch (error) {
@@ -126,7 +133,7 @@ const updatePhoto = async (req, res) => {
     }
 };
 export {
-    createPhoto,
+        createPhoto,
     getAllPhotos,
     getAPhoto,
     deletePhoto,

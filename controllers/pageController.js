@@ -1,45 +1,54 @@
 import nodemailer from "nodemailer"
+import Photo from "../models/photoModel.js";
+import User from "../models/userModel.js"
 
-const getIndexPage = (req, res) => {
-    res.render("index", {
-        link: "index"
-    });
+
+const getIndexPage = async (req, res) => {
+  const photos = await Photo.find().sort({uplodadedAt: -1}).limit(3)// fotografları ensondan itibaren sıralar
+  const numOfUser = await User.countDocuments({});
+  const numOfPhotos = await Photo.countDocuments({});
+  res.render("index", {
+    link: "index",
+    photos,
+    numOfUser,
+    numOfPhotos
+  });
 };
 
 const getAboutPage = (req, res) => {
-    res.render("about", {
-        link: "about"
-    });
+  res.render("about", {
+    link: "about"
+  });
 };
 
 const getRegisterPage = (req, res) => {
-    res.render("register", {
-        link: "register"
-    });
+  res.render("register", {
+    link: "register"
+  });
 };
 
 const getLoginPage = (req, res) => {
-    res.render("login", {
-        link: "login"
-    });
+  res.render("login", {
+    link: "login"
+  });
 };
 
 const getLogout = (req, res) => {
-    res.cookie("jwt", "", {
-        maxAge: 1,
-    })
-    res.redirect("/")
+  res.cookie("jwt", "", {
+    maxAge: 1,
+  })
+  res.redirect("/")
 };
 
 const getContactPage = (req, res) => {
-    res.render("contact", {
-        link: "contact"
-    });
+  res.render("contact", {
+    link: "contact"
+  });
 };
 
 const sendMail = async (req, res) => {
 
-    const htmlTemplate = `<!doctype html>
+  const htmlTemplate = `<!doctype html>
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -170,44 +179,44 @@ const sendMail = async (req, res) => {
     </html>
     `;
 
-    try {
-        let transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true, // true for 465, false for other ports
-            auth: {
-                user:process.env.email , // generated ethereal user
-                pass: process.env.sifre //"okcjmhptqgkalrcr", // generated ethereal password
-            },
-        });
+  try {
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: process.env.email, // generated ethereal user
+        pass: process.env.sifre //"okcjmhptqgkalrcr", // generated ethereal password
+      },
+    });
 
-        // send mail with defined transport object
-         await transporter.sendMail({
-            to: "emrekenderli@gmail.com", // list of receivers
-            subject: `MAIL FROM ${req.body.email}`, // Subject line
-            html: htmlTemplate, // html body
-        });
+    // send mail with defined transport object
+    await transporter.sendMail({
+      to: "emrekenderli@gmail.com", // list of receivers
+      subject: `MAIL FROM ${req.body.email}`, // Subject line
+      html: htmlTemplate, // html body
+    });
 
-        res.status(200).json({
-            succeded: true
-        })
+    res.status(200).json({
+      succeded: true
+    })
 
-    } catch (error) {
-        res.status(500).json({
-            succeded : false,
-            error
-        })
-    }
+  } catch (error) {
+    res.status(500).json({
+      succeded: false,
+      error
+    })
+  }
 };
 
 
 
 export {
-    getAboutPage,
-    getIndexPage,
-    getRegisterPage,
-    getLoginPage,
-    getLogout,
-    getContactPage,
-    sendMail
+  getAboutPage,
+  getIndexPage,
+  getRegisterPage,
+  getLoginPage,
+  getLogout,
+  getContactPage,
+  sendMail
 };
