@@ -55,6 +55,6 @@ app.use("/users", userRoute);
 
 
 
-app.listen(port, () => {
+app.listen(port || 3000, () => {
     console.log(`application running on port : ${port}`);
 });
