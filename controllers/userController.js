@@ -28,6 +28,7 @@ const createUser = async (req, res) => {
 
 };
 
+
 const loginUser = async (req, res) => {
     try {
         const {
@@ -37,39 +38,41 @@ const loginUser = async (req, res) => {
 
         const user = await User.findOne({
             username
-        })
+        });
 
         let same = false;
+
         if (user) {
             same = await bcrypt.compare(password, user.password);
         } else {
             return res.status(401).json({
                 succeded: false,
-                error: "There is no such user"
-            })
+                error: 'There is no such user',
+            });
         }
+
         if (same) {
-
-            const token = createToken(user._id)
-            res.cookie("jwt", token, {
+            const token = createToken(user._id);
+            res.cookie('jwt', token, {
                 httpOnly: true,
-                maxAge: 1000 * 60 * 60 * 24
-            })
+                maxAge: 1000 * 60 * 60 * 24,
+            });
 
-
-            res.redirect("/users/dashboard");
+            res.redirect('/users/dashboard');
         } else {
             res.status(401).json({
                 succeded: false,
-                error: "password are not matched"
-            })
+                error: 'Paswords are not matched',
+            });
         }
-
     } catch (error) {
-        catchFor(error)
+        res.status(500).json({
+            succeded: false,
+            error,
+        });
     }
-
 };
+
 
 const getDashboardPage = async (req, res) => {
     const photos = await Photo.find({
